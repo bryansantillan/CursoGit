@@ -1,0 +1,129 @@
+<html>
+    <head>
+       <link rel="stylesheet" href="SFStyle.css">
+    </head>
+  <body>
+
+    <h1>Generador de diagramas de tarta</h1>
+    <form id="formulario">
+      <label id=>Valor 1:</label>
+      <input type="number" id="valor1">
+      <br>
+      <label>Valor 2:</label>
+      <input type="number" id="valor2">
+      <br>
+      <label>Valor 3:</label>
+      <input type="number" id="valor3">
+      <br>
+      <button type="submit" id="draw-button">Dibujar diagrama</button>
+        
+      
+      <div id="chart-container">
+        <svg width="500" height="500" viewBox="0 0 500 500">
+          <g id="chart">
+          </g>
+        </svg>
+      </div>
+     
+        <textarea id="svg-code" style="width: 700px; height: 200px;"></textarea>
+     
+
+     
+      <button id="copy-button">Copiar</button>
+
+       
+    <script>
+      // Obtener los elementos del formulario
+      const formulario = document.getElementById('formulario');
+      const valor1Input = document.getElementById('valor1');
+      const valor2Input = document.getElementById('valor2');
+      const valor3Input = document.getElementById('valor3');
+      const svg = document.querySelector('svg');
+
+      // Añadir un manejador de eventos al formulario
+      formulario.addEventListener('submit', dibujarDiagrama);
+
+      // Función que se ejecutará al enviar el formulario
+      function dibujarDiagrama(event) {
+
+        svg.innerHTML="";
+        event.preventDefault();
+        
+        // Obtener los valores del formulario
+        const valor1 = parseInt(valor1Input.value);
+        const valor2 = parseInt(valor2Input.value);
+        const valor3 = parseInt(valor3Input.value);
+
+        // Validar que los valores sean válidos
+        if (isNaN(valor1) || isNaN(valor2) || isNaN(valor3)) {
+          alert('Por favor, introduce valores numéricos válidos.');
+        
+        }
+
+        // Calcular el total de los valores
+        const total = valor1 + valor2 + valor3;
+
+        // Calcular las porciones de cada sección
+        const seccion1Porcion = valor1 / total;
+        const seccion2Porcion = valor2 / total;
+        const seccion3Porcion = valor3 / total;
+
+        // Calcular los ángulos iniciales y finales de cada sección
+        const seccion1 = {
+          anguloInicial: 0,
+          anguloFinal: seccion1Porcion * 360,
+        };
+        const seccion2 = {
+          anguloInicial: seccion1.anguloFinal,
+          anguloFinal: seccion1.anguloFinal + seccion2Porcion * 360,
+        };
+        const seccion3 = {
+          anguloInicial: seccion2.anguloFinal,
+          anguloFinal: seccion2.anguloFinal + seccion3Porcion * 360,
+        };
+
+        // Calcular las coordenadas del centro del diagrama
+        const radio = 200;
+        const centroX = 200;
+        const centroY = 200;
+
+        // Dibujar las secciones del diagrama
+        const seccion1Path = `M ${centroX} ${centroY} L ${centroX + radio * Math.cos(seccion1.anguloInicial * Math.PI / 180)} ${centroY + radio * Math.sin(seccion1.anguloInicial * Math.PI / 180)} A ${radio} ${radio} 0 ${seccion1.anguloFinal - seccion1.anguloInicial > 180 ? 1 : 0} 1 ${centroX + radio * Math.cos(seccion1.anguloFinal * Math.PI / 180)} ${centroY + radio * Math.sin(seccion1.anguloFinal * Math.PI / 180)} Z`;
+        const seccion1PathElement = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        seccion1PathElement.setAttribute('d', seccion1Path);
+        seccion1PathElement.setAttribute('fill', 'blue');
+        svg.appendChild(seccion1PathElement);
+
+        const seccion2Path = `M ${centroX} ${centroY} L ${centroX + radio * Math.cos(seccion2.anguloInicial * Math.PI / 180)} ${centroY + radio * Math.sin(seccion2.anguloInicial * Math.PI / 180)} A ${radio} ${radio} 0 ${seccion2.anguloFinal - seccion2.anguloInicial > 180 ? 1 : 0} 1 ${centroX + radio * Math.cos(seccion2.anguloFinal * Math.PI / 180)} ${centroY + radio * Math.sin(seccion2.anguloFinal * Math.PI / 180)} Z`;
+        const seccion2PathElement = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        seccion2PathElement.setAttribute('d', seccion2Path);
+        seccion2PathElement.setAttribute('fill', 'green');
+        svg.appendChild(seccion2PathElement);
+    
+        // Dibujar la tercera sección del diagrama (si es necesario)
+        if (seccion3.anguloFinal - seccion3.anguloInicial > 0) {
+          const seccion3Path = `M ${centroX} ${centroY} L ${centroX + radio * Math.cos(seccion3.anguloInicial * Math.PI / 180)} ${centroY + radio * Math.sin(seccion3.anguloInicial * Math.PI / 180)} A ${radio} ${radio} 0 ${seccion3.anguloFinal - seccion3.anguloInicial > 180 ? 1 : 0} 1 ${centroX + radio * Math.cos(seccion3.anguloFinal * Math.PI / 180)} ${centroY + radio * Math.sin(seccion3.anguloFinal * Math.PI / 180)} Z`;
+          const seccion3PathElement = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+          seccion3PathElement.setAttribute('d', seccion3Path);
+          seccion3PathElement.setAttribute('fill', 'red');
+          svg.appendChild(seccion3PathElement);
+        }
+        //Mostrar el código SVG calculado
+        const element = document.querySelector("#chart-container");
+        const html = element.innerHTML;
+        document.querySelector("#svg-code").value = html.trim();       
+        
+      }
+      
+      //Copiar el código SVG al portapapeles
+      const button = document.querySelector("#copy-button");
+        button.addEventListener("click", () => {
+          const textarea = document.querySelector("#svg-code");
+          textarea.select();
+          document.execCommand("copy");
+        });
+     
+    </script>
+
+  </body>
+</html>
